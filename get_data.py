@@ -1,8 +1,8 @@
 import json
 from typing import List
 
+import logging
 import requests
-import time
 import datetime
 import xlsxwriter
 from openpyxl import load_workbook
@@ -48,7 +48,8 @@ headers = {
 
 
 def get_today_str():
-    return datetime.datetime.today().strftime('%Y-%m-%d')
+    return datetime.datetime.today().strftime("%Y-%m-%d")
+
 
 def get_current_time_info():
     year = datetime.datetime.now().today().year
@@ -61,11 +62,14 @@ def get_current_time_info():
 
 
 def get_url_data(aavid, today: str) -> dict:
-    print(f"当前获取 {aavid} 的数据， 请稍后。。。")
+    print(f"get current {aavid=}'s data, please wating...\n")
+    logging.info(f"get current {aavid=}'s data, please wating...\n")
     dt = {}
 
     # 获取当前时间整点的时间戳
-    cur_time_hour = int(datetime.datetime.now().replace(minute=0, second=0, microsecond=0).timestamp())
+    cur_time_hour = int(
+        datetime.datetime.now().replace(minute=0, second=0, microsecond=0).timestamp()
+    )
 
     data = {
         "adFilter": {
@@ -73,12 +77,9 @@ def get_url_data(aavid, today: str) -> dict:
             "app": 0,
             "marGoal": 10,
             "externalAction": [],
-            "optimizeGoal": []
+            "optimizeGoal": [],
         },
-        "creativeFilter": {
-            "app": 0,
-            "marGoal": 10
-        },
+        "creativeFilter": {"app": 0, "marGoal": 10},
         "statsParameter": {
             "startTime": today,
             "endTime": today,
@@ -106,72 +107,92 @@ def get_url_data(aavid, today: str) -> dict:
             ],
             "timeDimension": "stat_time_hour",
             "mainDimension": "advertiser_id",
-            "pageParams": {
-                "page": -1,
-                "pageSize": 0
-            }
+            "pageParams": {"page": -1, "pageSize": 0},
         },
         "aavid": aavid,
     }
-    _cook = id_info.get(aavid).get('cookie')
-    _cf = id_info.get(aavid).get('carton')
+    _cook = id_info.get(aavid).get("cookie")
+    _cf = id_info.get(aavid).get("carton")
 
     header = headers
-    header['cookie'] = _cook
-    header['x-csrftoken'] = _cf
+    header["cookie"] = _cook
+    header["x-csrftoken"] = _cf
 
     json_obj = json.dumps(data)
 
     url = f"https://qianchuan.jinritemai.com/ad/marketing/data/api/v1/report/stats?aavid={aavid}&gfversion=1.0.0.8188"
     resp = requests.post(url=url, headers=header, data=json_obj)
     if resp.status_code >= 400:
-        print(f"{aavid=}接收数据错误， 必要时更换cookie 和 csrftoken")
+        logging.error(f"can not receive {aavid=} data， may be u should change cookie & csrftoken\n")
+        print(f"can not receive {aavid=} data, may be u should change cookie & csrftoken\n")
         return dt
     all_data = resp.json()
     if all_data.get("status_code") != 0:
-        print(f"{aavid=} 接收数据错误， 必要时更换pay_load")
+        logging.error(f"can not receive {aavid=} data, may be u should change pay_load\n")
         return dt
-    result = all_data.get("data").get('data')
+    result = all_data.get("data").get("data")
 
-    stats_data_list = result.get('statsDataRows')
+    stats_data_list = result.get("statsDataRows")
     for stats_data in stats_data_list:
-        user_info = stats_data.get('dimensions')
-        stat_time_hour = user_info.get('statTimeHour')
+        user_info = stats_data.get("dimensions")
+        stat_time_hour = user_info.get("statTimeHour")
 
         # 拿取 当前整点 - 下一个整点的数据
         if stat_time_hour == str(cur_time_hour):
-            need_data = stats_data.get('metrics')
+            logging.info("can get data at current time and will be write data to file :-)\n")
+            need_data = stats_data.get("metrics")
 
             # 消耗
-            cost = need_data.get('cost').get('value') if need_data.get('cost') else 0
+            cost = need_data.get("cost").get("value") if need_data.get("cost") else 0
             # 展示次数
-            show_cnt = need_data.get('showCnt').get('value') if need_data.get('showCnt') else 0
+            show_cnt = (
+                need_data.get("showCnt").get("value") if need_data.get("showCnt") else 0
+            )
             # 点击次数
-            click_cnt = need_data.get('clickCnt').get('value') if need_data.get('clickCnt') else 0
+            click_cnt = (
+                need_data.get("clickCnt").get("value")
+                if need_data.get("clickCnt")
+                else 0
+            )
             # 直播间超过1分钟观看人次
-            more_1_minute_cnt = need_data.get('liveWatchOneMinuteCount').get('value') if need_data.get(
-                'liveWatchOneMinuteCount') else 0
+            more_1_minute_cnt = (
+                need_data.get("liveWatchOneMinuteCount").get("value")
+                if need_data.get("liveWatchOneMinuteCount")
+                else 0
+            )
             # 直播间查看购物车次数
-            sidecar_click_cnt = need_data.get('lubanLiveSlidecartClickCnt').get('value') if need_data.get(
-                'lubanLiveSlidecartClickCnt') else 0
+            sidecar_click_cnt = (
+                need_data.get("lubanLiveSlidecartClickCnt").get("value")
+                if need_data.get("lubanLiveSlidecartClickCnt")
+                else 0
+            )
             # 直播间商品点击次数
-            product_click_cnt = need_data.get('lubanLiveClickProductCnt').get('value') if need_data.get(
-                'lubanLiveClickProductCnt') else 0
+            product_click_cnt = (
+                need_data.get("lubanLiveClickProductCnt").get("value")
+                if need_data.get("lubanLiveClickProductCnt")
+                else 0
+            )
             # 直接成交金额(元)
-            direct_order_pay_gmv = need_data.get('directOrderPayGmv').get('value') if need_data.get(
-                'directOrderPayGmv') else 0
+            direct_order_pay_gmv = (
+                need_data.get("directOrderPayGmv").get("value")
+                if need_data.get("directOrderPayGmv")
+                else 0
+            )
             # 直接成交订单数
-            direct_order_pay_count = need_data.get('directOrderPayCount').get('value') if need_data.get(
-                'directOrderPayCount') else 0
+            direct_order_pay_count = (
+                need_data.get("directOrderPayCount").get("value")
+                if need_data.get("directOrderPayCount")
+                else 0
+            )
 
-            dt['cost'] = cost
-            dt['show_cnt'] = show_cnt
-            dt['click_cnt'] = click_cnt
-            dt['more_1_minute_cnt'] = more_1_minute_cnt
-            dt['sidecar_click_cnt'] = sidecar_click_cnt
-            dt['product_click_cnt'] = product_click_cnt
-            dt['direct_order_pay_gmv'] = direct_order_pay_gmv
-            dt['direct_order_pay_count'] = direct_order_pay_count
+            dt["cost"] = cost
+            dt["show_cnt"] = show_cnt
+            dt["click_cnt"] = click_cnt
+            dt["more_1_minute_cnt"] = more_1_minute_cnt
+            dt["sidecar_click_cnt"] = sidecar_click_cnt
+            dt["product_click_cnt"] = product_click_cnt
+            dt["direct_order_pay_gmv"] = direct_order_pay_gmv
+            dt["direct_order_pay_count"] = direct_order_pay_count
 
             return dt
     return dt
@@ -183,7 +204,7 @@ def get_all_data():
     today = get_today_str()
     for name, aavid in accountID_dict.items():
         dt = get_url_data(aavid=aavid, today=today)
-        dt['name'] = name
+        dt["name"] = name
         data_list.append(dt)
     return data_list
 
@@ -201,23 +222,26 @@ def gen_xlsx():
 
     worksheet.write("A1", "日期")
     worksheet.write("B1", "时间")
-    worksheet.write('C1', "账号名称")
+    worksheet.write("C1", "账号名称")
 
     worksheet.write("D1", "消耗(元)")
-    worksheet.write('E1', '展示次数')
-    worksheet.write('F1', '点击次数')
-    worksheet.write('G1', '直播间超过1分钟观看人次')
-    worksheet.write('H1', '直播间查看购物车次数')
-    worksheet.write('I1', '直播间商品点击次数')
-    worksheet.write('J1', '直接成交金额(元)')
-    worksheet.write('K1', '直接成交订单数')
+    worksheet.write("E1", "展示次数")
+    worksheet.write("F1", "点击次数")
+    worksheet.write("G1", "直播间超过1分钟观看人次")
+    worksheet.write("H1", "直播间查看购物车次数")
+    worksheet.write("I1", "直播间商品点击次数")
+    worksheet.write("J1", "直接成交金额(元)")
+    worksheet.write("K1", "直接成交订单数")
 
     workbook.close()
+
+    print(f"create {file} success :-)\n")
+    logging.info(f"create {file} success!\n")
     return file
 
 
 # 将数据写入文件中
-def write_date_2_excel_file(file_name: str, ):
+def write_date_2_excel_file(file_name: str):
     year, month, day, hour, _ = get_current_time_info()
 
     # 初始化有关数据总和为0
@@ -233,28 +257,43 @@ def write_date_2_excel_file(file_name: str, ):
         wb = load_workbook(filename=file_name)
         ws = wb.active
         current_row = ws.max_row + 1
-        print(f"{current_row=}")
+        logging.info(f"{current_row=}\n")
         ws.cell(current_row, 1).value = f"{year}/{month}/{day}"
         ws.cell(current_row, 2).value = f"{hour}:00~{hour + 1}:00"
         ws.cell(current_row, 3).value = name
 
-        ws.cell(current_row, 4).value = item.get('cost')
-        ws.cell(current_row, 5).value = item.get('show_cnt')
-        ws.cell(current_row, 6).value = item.get('click_cnt')
-        ws.cell(current_row, 7).value = item.get('more_1_minute_cnt')
-        ws.cell(current_row, 8).value = item.get('sidecar_click_cnt')
-        ws.cell(current_row, 9).value = item.get('product_click_cnt')
-        ws.cell(current_row, 10).value = item.get('direct_order_pay_gmv')
-        ws.cell(current_row, 11).value = item.get('direct_order_pay_count')
 
-        cost_sum += item.get('cost')
-        show_cnt_sum += item.get('show_cnt')
-        click_cnt_sum += item.get('click_cnt')
-        more_1_minute_cnt_sum += item.get('more_1_minute_cnt')
-        sidecar_click_cnt_sum += item.get('sidecar_click_cnt')
-        product_click_cnt_sum += item.get('product_click_cnt')
-        direct_order_pay_gmv_sum += item.get('direct_order_pay_gmv')
-        direct_order_pay_count_sum += item.get('direct_order_pay_count')
+        cost = item.get("cost")
+        show_cnt = item.get("show_cnt")
+        click_cnt = item.get("click_cnt")
+        more_1_minute_cnt = item.get("more_1_minute_cnt")
+        sidecar_click_cnt = item.get("sidecar_click_cnt")
+        product_click_cnt = item.get("product_click_cnt")
+        direct_order_pay_gmv = item.get("direct_order_pay_gmv")
+        direct_order_pay_count = item.get("direct_order_pay_count")
+
+        # need convert data
+        cost = cost / 100000
+        direct_order_pay_gmv = direct_order_pay_gmv / 100000
+
+
+        ws.cell(current_row, 4).value = cost
+        ws.cell(current_row, 5).value = show_cnt
+        ws.cell(current_row, 6).value = click_cnt
+        ws.cell(current_row, 7).value = more_1_minute_cnt
+        ws.cell(current_row, 8).value = sidecar_click_cnt
+        ws.cell(current_row, 9).value = product_click_cnt
+        ws.cell(current_row, 10).value = direct_order_pay_gmv
+        ws.cell(current_row, 11).value = direct_order_pay_count
+
+        cost_sum += cost
+        show_cnt_sum += show_cnt
+        click_cnt_sum += click_cnt
+        more_1_minute_cnt_sum += more_1_minute_cnt
+        sidecar_click_cnt_sum += sidecar_click_cnt
+        product_click_cnt_sum += product_click_cnt
+        direct_order_pay_gmv_sum += direct_order_pay_gmv
+        direct_order_pay_count_sum += direct_order_pay_count
         wb.save(file_name)
         wb.close()
 
@@ -264,7 +303,7 @@ def write_date_2_excel_file(file_name: str, ):
 
     ws.cell(current_row, 1).value = f"{year}/{month}/{day}"
     ws.cell(current_row, 2).value = f"{hour}:00~{hour + 1}:00"
-    ws.cell(current_row, 3).value = '总计'
+    ws.cell(current_row, 3).value = "总计"
     ws.cell(current_row, 4).value = cost_sum
     ws.cell(current_row, 5).value = show_cnt_sum
     ws.cell(current_row, 6).value = click_cnt_sum
@@ -309,7 +348,7 @@ def write_date_2_excel_file(file_name: str, ):
 #     file_name = gen_xlsx()
 #     write_date_2_excel_file(file_name)
 
-get_url_data(aavid=1729353507265543, today="2022-06-13")
+# get_url_data(aavid=1729353507265543, today="2022-06-13")
 
 """
 {
