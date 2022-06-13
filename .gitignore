@@ -84,6 +84,9 @@ cmake-build-*/
 # IntelliJ
 out/
 
+# ignore output_file
+output_file
+
 # mpeltonen/sbt-idea plugin
 .idea_modules/
 
