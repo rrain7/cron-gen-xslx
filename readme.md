@@ -4,14 +4,14 @@
 
 ```python
 python -m venv venv
-.\\venv\\Scripts\\activate.bat
-pip3 install -r requirements.txt
+.\venv\Scripts\activate.bat
+.\venv\Scripts\python.exe -m pip install -r requirements.txt
 ```
 
 修改`get_data.py`文件中的 `id_info`中的字段值
 
 ```go
-go mod 
+go mod tidy
 set GOOS=windows GOARCH=amd64
 go build -o cron-gen-excel.exe main.go
 ```
