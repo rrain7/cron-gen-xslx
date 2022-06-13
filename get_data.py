@@ -297,7 +297,8 @@ def write_date_2_excel_file(file_name: str):
         direct_order_pay_gmv_sum += direct_order_pay_gmv
         direct_order_pay_count_sum += direct_order_pay_count
         wb.save(file_name)
-        logging.info("write single data to file")
+        logging.info("write single data to file\n")
+        print("write single data to file\n")
         wb.close()
 
     wb = load_workbook(filename=file_name)
@@ -317,7 +318,8 @@ def write_date_2_excel_file(file_name: str):
     ws.cell(current_row, 11).value = direct_order_pay_count_sum
     wb.save(file_name)
     wb.close()
-    logging.info("write sum data to file")
+    logging.info("write sum data to file\n")
+    print("write sum data to file\n")
 
 
 # copy and rename file
@@ -325,6 +327,9 @@ def copy_and_rename(file: str):
     new_file = file.rstrip(".xlsx")+"-copy"+".xlsx"
     import shutil
     shutil.copy(file, new_file)
+    logging.info(f"finish writing all data into file, please open {new_file} get the data you need, and wating 1 hour then get data :-) ")
+    print(f"finish writing all data into file, please open {new_file} get the data you need, and wating 1 hour then get data :-) ")
+    
 
 
 """
