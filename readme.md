@@ -11,7 +11,7 @@ python -m venv venv
 修改`get_data.py`文件中的 `id_info`中的字段值
 
 ```go
-go mod 
+go mod tidy
 set GOOS=windows GOARCH=amd64
 go build -o cron-gen-excel.exe main.go
 ```
