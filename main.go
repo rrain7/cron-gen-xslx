@@ -19,8 +19,9 @@ func main() {
 		cmd := exec.Command("./venv/Scripts/python.exe", "main.py")
 		out, err := cmd.CombinedOutput()
 		if err != nil {
-			log.Fatalf("运行出错: %s\n%s\n", out, err)
+			log.Fatalf("run script error: %s\n%s\n", out, err)
 		}
+
 		fmt.Printf("%s\n", string(out))
 	})
 
