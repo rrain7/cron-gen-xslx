@@ -23,6 +23,7 @@ var task = func ()  {
 
 func Job() {
 	log.Println("start run cron job")
+	log.Println("the job will be exec at every hour 1th min")
 	s := gocron.NewScheduler(time.UTC)
 	s.Cron("1 * * * *").Do(task)
 	
