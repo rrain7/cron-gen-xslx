@@ -10,7 +10,7 @@ import (
 
 var task = func() {
 	log.Println("start exec python script...")
-	cmd := exec.Command("./venv/Scripts/python.exe", "main.py")
+	cmd := exec.Command("python.exe", "main.py")
 	out, err := cmd.CombinedOutput()
 	log.Println("get exec stdout and stderr")
 	if err != nil {
