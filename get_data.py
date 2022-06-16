@@ -24,6 +24,10 @@ def get_today_str():
     return datetime.datetime.today().strftime("%Y-%m-%d")
 
 
+def get_query_data_format(year: int, month: int, day: int):
+    return datetime.date(year=year, month=month, day=day).strftime("%Y-%m-%d")
+
+
 def get_current_time_info():
     year = datetime.datetime.now().today().year
     month = datetime.datetime.now().today().month
@@ -36,20 +40,19 @@ def get_current_time_info():
 
 def get_last_hour_time():
     now_time = datetime.datetime.now().replace(minute=0, second=0, microsecond=0)
-    last_hour_time = now_time+datetime.timedelta(hours=-1)
+    last_hour_time = now_time + datetime.timedelta(hours=-1)
     return last_hour_time
+
 
 def get_last_hour_time_info():
     last_hour = get_last_hour_time()
     return last_hour.year, last_hour.month, last_hour.day, last_hour.hour
 
 
-def get_url_data(aavid, today: str, user_info: dict, time_info_timestamp: int) -> dict:
+def get_url_data(aavid, query_data: str, user_info: dict, time_info_timestamp: int) -> dict:
     print(f"get current {aavid=}'s data, please wating...\n")
     logging.info(f"get current {aavid=}'s data, please wating...\n")
     dt = {}
-
-
 
     data = {
         "adFilter": {
@@ -61,8 +64,8 @@ def get_url_data(aavid, today: str, user_info: dict, time_info_timestamp: int) -
         },
         "creativeFilter": {"app": 0, "marGoal": 10},
         "statsParameter": {
-            "startTime": today,
-            "endTime": today,
+            "startTime": query_data,
+            "endTime": query_data,
             "metrics": [
                 "stat_cost",
                 "show_cnt",
@@ -181,22 +184,9 @@ def get_url_data(aavid, today: str, user_info: dict, time_info_timestamp: int) -
     return dt
 
 
-# 目前此函数并未使用
-def get_all_data():
-    data_list: List[dict] = []
-    today = get_today_str()
-    for name, aavid in accountID_dict.items():
-        dt = get_url_data(aavid=aavid, today=today)
-        dt["name"] = name
-        data_list.append(dt)
-    return data_list
-
-
 # 生成 excel 文件
-def gen_xlsx():
-    _, month, day, hour = get_last_hour_time_info()
-
-    file = f"./output_file/{month}月{day}日{hour}时-{hour+1}时数据.xlsx"
+def gen_xlsx(month, day, hour):
+    file = f"./output_file/{month}月{day}日{hour}时-{hour + 1}时数据.xlsx"
 
     workbook = xlsxwriter.Workbook(file)
     worksheet = workbook.add_worksheet()
@@ -220,6 +210,7 @@ def gen_xlsx():
     logging.info(f"create {file} success!\n")
     return file
 
+
 # 从配置文件中读取信息
 def get_info_from_toml():
     info = toml.load("./config.toml")
@@ -227,23 +218,27 @@ def get_info_from_toml():
     # print(f"{data_list=}")
     return data_list
 
-# 将数据写入文件中
-def write_date_2_excel_file(file_name: str):
-    year, month, day, hour = get_last_hour_time_info()
 
+def get_time_timestamp(year: int, month: int, day: int, hour: int):
+    return datetime.datetime.replace(year=year, month=month, day=day, hour=hour, minute=0, microsecond=0).timestamp()
+
+
+# 将数据写入文件中
+def write_date_2_excel_file(file_name: str, year: int, month: int, day: int, hour: int):
     # 初始化有关数据总和为0
     cost_sum = show_cnt_sum = click_cnt_sum = more_1_minute_cnt_sum = sidecar_click_cnt_sum = 0
     product_click_cnt_sum = direct_order_pay_gmv_sum = direct_order_pay_count_sum = 0
 
-    today = get_today_str()
+    query_data_fmt = get_query_data_format(year=year, month=month, day=day)
 
     user_info_list = get_info_from_toml()
-    t_timestamp = int(get_last_hour_time().timestamp())
+
+    t_timestamp = int(get_time_timestamp(year=year, month=month, day=day, hour=hour))
 
     for user_info in user_info_list:
         name = user_info.get("name")
         vid = user_info.get("id")
-        item = get_url_data(aavid=vid, today=today, user_info=user_info, time_info_timestamp=t_timestamp)
+        item = get_url_data(aavid=vid, query_data=query_data_fmt, user_info=user_info, time_info_timestamp=t_timestamp)
 
         if not item:
             print(f"{vid=} in the last hour does not exist data...")
@@ -255,9 +250,8 @@ def write_date_2_excel_file(file_name: str):
         current_row = ws.max_row + 1
         logging.info(f"{current_row=}\n")
         ws.cell(current_row, 1).value = f"{year}/{month}/{day}"
-        ws.cell(current_row, 2).value = f"{hour}:00~{hour+1}:00"
+        ws.cell(current_row, 2).value = f"{hour}:00~{hour + 1}:00"
         ws.cell(current_row, 3).value = name
-
 
         cost = item.get("cost")
         show_cnt = item.get("show_cnt")
@@ -271,7 +265,6 @@ def write_date_2_excel_file(file_name: str):
         # need convert data
         cost = cost / 100000
         direct_order_pay_gmv = direct_order_pay_gmv / 100000
-
 
         ws.cell(current_row, 4).value = cost
         ws.cell(current_row, 5).value = show_cnt
@@ -300,7 +293,7 @@ def write_date_2_excel_file(file_name: str):
     current_row = ws.max_row + 2
 
     ws.cell(current_row, 1).value = f"{year}/{month}/{day}"
-    ws.cell(current_row, 2).value = f"{hour}:00~{hour+1}:00"
+    ws.cell(current_row, 2).value = f"{hour}:00~{hour + 1}:00"
     ws.cell(current_row, 3).value = "总计"
     ws.cell(current_row, 4).value = cost_sum
     ws.cell(current_row, 5).value = show_cnt_sum
@@ -318,11 +311,11 @@ def write_date_2_excel_file(file_name: str):
 
 # copy and rename file
 def copy_and_rename(file: str):
-    new_file = file.rstrip(".xlsx")+"-copy"+".xlsx"
+    new_file = file.rstrip(".xlsx") + "-copy" + ".xlsx"
     import shutil
     shutil.copy(file, new_file)
-    logging.info(f"finish writing all data into file, please open {new_file} get the data you need, and wating 1 hour then get data :-) ")
-    print(f"finish writing all data into file, please open {new_file} get the data you need, and wating 1 hour then get data :-) ")
+    logging.info(f"finish writing all data into file, please open {new_file} get the data you need, and waiting 1 hour then get data :-) ")
+    print(f"finish writing all data into file, please open {new_file} get the data you need, and waiting 1 hour then get data :-) ")
     
 
 
