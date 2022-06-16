@@ -224,7 +224,7 @@ def gen_xlsx():
 def get_info_from_toml():
     info = toml.load("./config.toml")
     data_list = info.get('info')
-    print(f"{data_list=}")
+    # print(f"{data_list=}")
     return data_list
 
 # 将数据写入文件中
@@ -238,7 +238,7 @@ def write_date_2_excel_file(file_name: str):
     today = get_today_str()
 
     user_info_list = get_info_from_toml()
-    t_timestamp = int(get_last_hour_time_info())
+    t_timestamp = int(get_last_hour_time().timestamp())
 
     for user_info in user_info_list:
         name = user_info.get("name")
