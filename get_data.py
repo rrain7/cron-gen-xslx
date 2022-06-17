@@ -1,41 +1,12 @@
 import json
 from typing import List
+import toml
 
 import logging
 import requests
 import datetime
 import xlsxwriter
 from openpyxl import load_workbook
-
-# 需要抓取的账号以及账号ID
-accountID_dict = {
-    "UG-保险-博观随心推-1": 1733053681002496,
-    "UG-短险千川-博观-3": 1729353507265543,
-    "UG-短险千川-博观-2": 1727260490285135,
-    "UG-短险千川-博观-1": 1727260489617423,
-}
-
-# 获取数据的请求信息，需要自己填充 `cookie` & `carton`
-id_info = {
-    1733053681002496: {
-        'cookie': 'MONITOR_WEB_ID=ba14d717-dbea-45fd-8f60-94acdcbc5f88; ttcid=2833c61bbf894df7ba034710ea192f0d36; qc_tt_tag=0; _tea_utm_cache_1574={"utm_source":"qianchuan-origin-entrance","utm_medium":"baiying-pc","utm_campaign":"author","utm_term":"qianchuan-livepromote"}; passport_csrf_token=0369db0e8030c5e25787879a32170569; passport_csrf_token_default=0369db0e8030c5e25787879a32170569; d_ticket=909082e5a3b2bb2b452a8c8a6da1020dd2fad; n_mh=-mqxKVrAml8wYjvJQK_ciUbaL4EURXJiZQ9FV6AtQec; passport_auth_status=d664a4b60cba8e68d2192ab90df979ed,; passport_auth_status_ss=d664a4b60cba8e68d2192ab90df979ed,; sso_auth_status=e0a754c8e17fae23345ceb1070cd506d; sso_auth_status_ss=e0a754c8e17fae23345ceb1070cd506d; ucas_c0=CkAKBTEuMC4wEKmIher-y7jAYhjmJiCv8cCGoY3AAyiwITCcp6DN3oxpQPzEg5QGSPz4v5YGUIC81vLVw5yvYlhvEhR2oEcJ7mhsaX2Gs53DehsUxtHJ-w; ucas_c0_ss=CkAKBTEuMC4wEKmIher-y7jAYhjmJiCv8cCGoY3AAyiwITCcp6DN3oxpQPzEg5QGSPz4v5YGUIC81vLVw5yvYlhvEhR2oEcJ7mhsaX2Gs53DehsUxtHJ-w; gftoken=YmUyMDM0MTZiMHwxNjUyNjIyNzcyMTR8fDAGBgYGBgY; MONITOR_DEVICE_ID=df730b0f-15b3-4430-a199-4eaf7e83cc20; ttwid=1|T9h3daLJFRlIkAOdneZSB5fUHVorG5mPpIK61BtAg6c|1654526332|e241dd2b7047364ac3773786ad0144cb5c6922dbedf6d986338ee55d39d1f7c3; msToken=Oe4Kh59KtYhq8DvahzbdGm5TTmphyFbNjAOTjTT6j3kk_wfdM92ZWDplJZ2qR55CyUg-pN7yO4M5LIPy2Ov03D3bfONoqcAxhvyetXybmaU-ao2PvfqSeLWCgbEYbvY=; x-jupiter-uuid=16548721719201304; _tea_utm_cache_4499=undefined; _ssa_username=undefined; tt_scid=DzrSSoq7H616Ymxpv04DZFLwwyeKFe7iIsf5chyvCRx9.Nk9hhRFUInndDqfqQ3P2242; csrftoken=pruAIQ4S-Jp0sRBbG5DPe9sSTHU9jLPGiDis; acsessionid=f4f23b9cf9cf4751bda6c13f99702b7d',
-        "carton": "pruAIQ4S-Jp0sRBbG5DPe9sSTHU9jLPGiDis",
-    },
-
-    1729353507265543: {
-        "cookie": 'MONITOR_WEB_ID=ba14d717-dbea-45fd-8f60-94acdcbc5f88; ttcid=2833c61bbf894df7ba034710ea192f0d36; qc_tt_tag=0; _tea_utm_cache_1574={"utm_source":"qianchuan-origin-entrance","utm_medium":"baiying-pc","utm_campaign":"author","utm_term":"qianchuan-livepromote"}; passport_csrf_token=0369db0e8030c5e25787879a32170569; passport_csrf_token_default=0369db0e8030c5e25787879a32170569; d_ticket=909082e5a3b2bb2b452a8c8a6da1020dd2fad; n_mh=-mqxKVrAml8wYjvJQK_ciUbaL4EURXJiZQ9FV6AtQec; passport_auth_status=d664a4b60cba8e68d2192ab90df979ed,; passport_auth_status_ss=d664a4b60cba8e68d2192ab90df979ed,; sso_auth_status=e0a754c8e17fae23345ceb1070cd506d; sso_auth_status_ss=e0a754c8e17fae23345ceb1070cd506d; ucas_c0=CkAKBTEuMC4wEKmIher-y7jAYhjmJiCv8cCGoY3AAyiwITCcp6DN3oxpQPzEg5QGSPz4v5YGUIC81vLVw5yvYlhvEhR2oEcJ7mhsaX2Gs53DehsUxtHJ-w; ucas_c0_ss=CkAKBTEuMC4wEKmIher-y7jAYhjmJiCv8cCGoY3AAyiwITCcp6DN3oxpQPzEg5QGSPz4v5YGUIC81vLVw5yvYlhvEhR2oEcJ7mhsaX2Gs53DehsUxtHJ-w; gftoken=YmUyMDM0MTZiMHwxNjUyNjIyNzcyMTR8fDAGBgYGBgY; MONITOR_DEVICE_ID=df730b0f-15b3-4430-a199-4eaf7e83cc20; ttwid=1|T9h3daLJFRlIkAOdneZSB5fUHVorG5mPpIK61BtAg6c|1654526332|e241dd2b7047364ac3773786ad0144cb5c6922dbedf6d986338ee55d39d1f7c3; msToken=Oe4Kh59KtYhq8DvahzbdGm5TTmphyFbNjAOTjTT6j3kk_wfdM92ZWDplJZ2qR55CyUg-pN7yO4M5LIPy2Ov03D3bfONoqcAxhvyetXybmaU-ao2PvfqSeLWCgbEYbvY=; x-jupiter-uuid=16548721719201304; _tea_utm_cache_4499=undefined; _ssa_username=undefined; tt_scid=DzrSSoq7H616Ymxpv04DZFLwwyeKFe7iIsf5chyvCRx9.Nk9hhRFUInndDqfqQ3P2242; csrftoken=pruAIQ4S-Jp0sRBbG5DPe9sSTHU9jLPGiDis; acsessionid=60a50fa1dba84752a94aeda29a3225b4',
-        "carton": "pruAIQ4S-Jp0sRBbG5DPe9sSTHU9jLPGiDis",
-    },
-
-    1727260490285135: {
-        "cookie": 'MONITOR_WEB_ID=ba14d717-dbea-45fd-8f60-94acdcbc5f88; ttcid=2833c61bbf894df7ba034710ea192f0d36; qc_tt_tag=0; _tea_utm_cache_1574={"utm_source":"qianchuan-origin-entrance","utm_medium":"baiying-pc","utm_campaign":"author","utm_term":"qianchuan-livepromote"}; passport_csrf_token=0369db0e8030c5e25787879a32170569; passport_csrf_token_default=0369db0e8030c5e25787879a32170569; d_ticket=909082e5a3b2bb2b452a8c8a6da1020dd2fad; n_mh=-mqxKVrAml8wYjvJQK_ciUbaL4EURXJiZQ9FV6AtQec; passport_auth_status=d664a4b60cba8e68d2192ab90df979ed,; passport_auth_status_ss=d664a4b60cba8e68d2192ab90df979ed,; sso_auth_status=e0a754c8e17fae23345ceb1070cd506d; sso_auth_status_ss=e0a754c8e17fae23345ceb1070cd506d; ucas_c0=CkAKBTEuMC4wEKmIher-y7jAYhjmJiCv8cCGoY3AAyiwITCcp6DN3oxpQPzEg5QGSPz4v5YGUIC81vLVw5yvYlhvEhR2oEcJ7mhsaX2Gs53DehsUxtHJ-w; ucas_c0_ss=CkAKBTEuMC4wEKmIher-y7jAYhjmJiCv8cCGoY3AAyiwITCcp6DN3oxpQPzEg5QGSPz4v5YGUIC81vLVw5yvYlhvEhR2oEcJ7mhsaX2Gs53DehsUxtHJ-w; gftoken=YmUyMDM0MTZiMHwxNjUyNjIyNzcyMTR8fDAGBgYGBgY; MONITOR_DEVICE_ID=df730b0f-15b3-4430-a199-4eaf7e83cc20; ttwid=1|T9h3daLJFRlIkAOdneZSB5fUHVorG5mPpIK61BtAg6c|1654526332|e241dd2b7047364ac3773786ad0144cb5c6922dbedf6d986338ee55d39d1f7c3; msToken=Oe4Kh59KtYhq8DvahzbdGm5TTmphyFbNjAOTjTT6j3kk_wfdM92ZWDplJZ2qR55CyUg-pN7yO4M5LIPy2Ov03D3bfONoqcAxhvyetXybmaU-ao2PvfqSeLWCgbEYbvY=; x-jupiter-uuid=16548721719201304; _tea_utm_cache_4499=undefined; _ssa_username=undefined; tt_scid=DzrSSoq7H616Ymxpv04DZFLwwyeKFe7iIsf5chyvCRx9.Nk9hhRFUInndDqfqQ3P2242; acsessionid=816618037bdd469cba8585d06c22c759; csrftoken=pruAIQ4S-Jp0sRBbG5DPe9sSTHU9jLPGiDis',
-        "carton": "pruAIQ4S-Jp0sRBbG5DPe9sSTHU9jLPGiDis",
-    },
-    1727260489617423: {
-        "cookie": 'MONITOR_WEB_ID=ba14d717-dbea-45fd-8f60-94acdcbc5f88; ttcid=2833c61bbf894df7ba034710ea192f0d36; qc_tt_tag=0; _tea_utm_cache_1574={"utm_source":"qianchuan-origin-entrance","utm_medium":"baiying-pc","utm_campaign":"author","utm_term":"qianchuan-livepromote"}; passport_csrf_token=0369db0e8030c5e25787879a32170569; passport_csrf_token_default=0369db0e8030c5e25787879a32170569; d_ticket=909082e5a3b2bb2b452a8c8a6da1020dd2fad; n_mh=-mqxKVrAml8wYjvJQK_ciUbaL4EURXJiZQ9FV6AtQec; passport_auth_status=d664a4b60cba8e68d2192ab90df979ed,; passport_auth_status_ss=d664a4b60cba8e68d2192ab90df979ed,; sso_auth_status=e0a754c8e17fae23345ceb1070cd506d; sso_auth_status_ss=e0a754c8e17fae23345ceb1070cd506d; ucas_c0=CkAKBTEuMC4wEKmIher-y7jAYhjmJiCv8cCGoY3AAyiwITCcp6DN3oxpQPzEg5QGSPz4v5YGUIC81vLVw5yvYlhvEhR2oEcJ7mhsaX2Gs53DehsUxtHJ-w; ucas_c0_ss=CkAKBTEuMC4wEKmIher-y7jAYhjmJiCv8cCGoY3AAyiwITCcp6DN3oxpQPzEg5QGSPz4v5YGUIC81vLVw5yvYlhvEhR2oEcJ7mhsaX2Gs53DehsUxtHJ-w; gftoken=YmUyMDM0MTZiMHwxNjUyNjIyNzcyMTR8fDAGBgYGBgY; MONITOR_DEVICE_ID=df730b0f-15b3-4430-a199-4eaf7e83cc20; ttwid=1|T9h3daLJFRlIkAOdneZSB5fUHVorG5mPpIK61BtAg6c|1654526332|e241dd2b7047364ac3773786ad0144cb5c6922dbedf6d986338ee55d39d1f7c3; msToken=Oe4Kh59KtYhq8DvahzbdGm5TTmphyFbNjAOTjTT6j3kk_wfdM92ZWDplJZ2qR55CyUg-pN7yO4M5LIPy2Ov03D3bfONoqcAxhvyetXybmaU-ao2PvfqSeLWCgbEYbvY=; x-jupiter-uuid=16548721719201304; _tea_utm_cache_4499=undefined; _ssa_username=undefined; tt_scid=DzrSSoq7H616Ymxpv04DZFLwwyeKFe7iIsf5chyvCRx9.Nk9hhRFUInndDqfqQ3P2242; csrftoken=pruAIQ4S-Jp0sRBbG5DPe9sSTHU9jLPGiDis; acsessionid=328878fc98b64a9e97bf6a859e4d96c5',
-        "carton": "pruAIQ4S-Jp0sRBbG5DPe9sSTHU9jLPGiDis"
-    },
-}
 
 # aavid = 1733053681002496
 
@@ -63,15 +34,22 @@ def get_current_time_info():
     return year, month, day, hour, minute
 
 
-def get_url_data(aavid, today: str) -> dict:
+def get_last_hour_time():
+    now_time = datetime.datetime.now().replace(minute=0, second=0, microsecond=0)
+    last_hour_time = now_time+datetime.timedelta(hours=-1)
+    return last_hour_time
+
+def get_last_hour_time_info():
+    last_hour = get_last_hour_time()
+    return last_hour.year, last_hour.month, last_hour.day, last_hour.hour
+
+
+def get_url_data(aavid, today: str, user_info: dict, time_info_timestamp: int) -> dict:
     print(f"get current {aavid=}'s data, please wating...\n")
     logging.info(f"get current {aavid=}'s data, please wating...\n")
     dt = {}
 
-    # 获取当前时间整点的时间戳
-    cur_time_hour = int(
-        datetime.datetime.now().replace(minute=0, second=0, microsecond=0).timestamp()
-    )
+
 
     data = {
         "adFilter": {
@@ -113,8 +91,8 @@ def get_url_data(aavid, today: str) -> dict:
         },
         "aavid": aavid,
     }
-    _cook = id_info.get(aavid).get("cookie")
-    _cf = id_info.get(aavid).get("carton")
+    _cook = user_info.get("cookie")
+    _cf = user_info.get("carton")
 
     header = headers
     header["cookie"] = _cook
@@ -128,10 +106,13 @@ def get_url_data(aavid, today: str) -> dict:
         logging.error(f"can not receive {aavid=} data， may be u should change cookie & csrftoken\n")
         print(f"can not receive {aavid=} data, may be u should change cookie & csrftoken\n")
         return dt
+
     all_data = resp.json()
     if all_data.get("status_code") != 0:
-        logging.error(f"can not receive {aavid=} data, may be u should change pay_load\n")
+        logging.error(f"can not receive {aavid=} data, may be u should change pay_load or change cookie & csrftoken\n")
+        print(f"can not receive {aavid=} data, may be u should change pay_load or change cookie & csrftoken\n")
         return dt
+
     result = all_data.get("data").get("data")
 
     stats_data_list = result.get("statsDataRows")
@@ -140,7 +121,7 @@ def get_url_data(aavid, today: str) -> dict:
         stat_time_hour = user_info.get("statTimeHour")
 
         # 拿取 上一个小时 - 当前整点的数据
-        if stat_time_hour == str(cur_time_hour-3600):
+        if stat_time_hour == str(time_info_timestamp):
             logging.info("can get data at current time and will be write data to file :-)\n")
             need_data = stats_data.get("metrics")
 
@@ -213,11 +194,9 @@ def get_all_data():
 
 # 生成 excel 文件
 def gen_xlsx():
-    month = datetime.datetime.now().today().month
-    day = datetime.datetime.now().today().day
-    hour = datetime.datetime.now().time().hour
+    _, month, day, hour = get_last_hour_time_info()
 
-    file = f"./output_file/{month}月{day}日{hour-1}时-{hour}时数据.xlsx"
+    file = f"./output_file/{month}月{day}日{hour}时-{hour+1}时数据.xlsx"
 
     workbook = xlsxwriter.Workbook(file)
     worksheet = workbook.add_worksheet()
@@ -241,19 +220,34 @@ def gen_xlsx():
     logging.info(f"create {file} success!\n")
     return file
 
+# 从配置文件中读取信息
+def get_info_from_toml():
+    info = toml.load("./config.toml")
+    data_list = info.get('info')
+    # print(f"{data_list=}")
+    return data_list
 
 # 将数据写入文件中
 def write_date_2_excel_file(file_name: str):
-    year, month, day, hour, _ = get_current_time_info()
+    year, month, day, hour = get_last_hour_time_info()
 
     # 初始化有关数据总和为0
     cost_sum = show_cnt_sum = click_cnt_sum = more_1_minute_cnt_sum = sidecar_click_cnt_sum = 0
     product_click_cnt_sum = direct_order_pay_gmv_sum = direct_order_pay_count_sum = 0
 
-    for name, vid in accountID_dict.items():
-        today = get_today_str()
-        item = get_url_data(aavid=vid, today=today)
+    today = get_today_str()
+
+    user_info_list = get_info_from_toml()
+    t_timestamp = int(get_last_hour_time().timestamp())
+
+    for user_info in user_info_list:
+        name = user_info.get("name")
+        vid = user_info.get("id")
+        item = get_url_data(aavid=vid, today=today, user_info=user_info, time_info_timestamp=t_timestamp)
+
         if not item:
+            print(f"{vid=} in the last hour does not exist data...")
+            logging.info(f"{vid=} in the last hour does not exist data...")
             continue
 
         wb = load_workbook(filename=file_name)
@@ -261,7 +255,7 @@ def write_date_2_excel_file(file_name: str):
         current_row = ws.max_row + 1
         logging.info(f"{current_row=}\n")
         ws.cell(current_row, 1).value = f"{year}/{month}/{day}"
-        ws.cell(current_row, 2).value = f"{hour-1}:00~{hour}:00"
+        ws.cell(current_row, 2).value = f"{hour}:00~{hour+1}:00"
         ws.cell(current_row, 3).value = name
 
 
@@ -306,7 +300,7 @@ def write_date_2_excel_file(file_name: str):
     current_row = ws.max_row + 2
 
     ws.cell(current_row, 1).value = f"{year}/{month}/{day}"
-    ws.cell(current_row, 2).value = f"{hour-1}:00~{hour}:00"
+    ws.cell(current_row, 2).value = f"{hour}:00~{hour+1}:00"
     ws.cell(current_row, 3).value = "总计"
     ws.cell(current_row, 4).value = cost_sum
     ws.cell(current_row, 5).value = show_cnt_sum

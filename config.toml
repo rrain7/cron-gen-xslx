@@ -1,0 +1,26 @@
+info = [
+{
+        name = "UG-保险-博观随心推-1",
+        id = 1733053681002496,
+        carton = "RWhLoedW-onKgNmyJcpdGf4mSolBr3Ereows",
+        cookie = 'ttcid=ffaa5dc442674781b252514bd70de9e723; n_mh=Ka1mng1RyLBrLDMAVs7sxX4t9MnBwmyXhWRl80V0HIo; d_ticket=dab72464628d52367408055a131d467fee674; qc_tt_tag=0; MONITOR_WEB_ID=0469995c-dd91-4c14-8df6-03e54e9cde6a; passport_csrf_token=4f27b0a3ec5bbbf0ae76ac3f2cf80b23; passport_csrf_token_default=4f27b0a3ec5bbbf0ae76ac3f2cf80b23; MONITOR_DEVICE_ID=b62f4545-432d-45f4-b27f-ea4831aad4a4; ttwid=1|W25-igKKSNtfkb4eI35vHlTPYYdyDEl4YcInebHjmHc|1654668653|16942b11d79799af4fabc4245a008b70abcad965a568529a9149f9d7f739225d; msToken=HwX-q2GdkKZt023H40wRL5wU7KiQuWhREQD5QdHMh8n1gqNbKIRrVJDAD8Xf9hlIQFJsZqRucaM0__hhv6tWPCGpL-y30WduUubOpuiagWAMqlbIBKi12A==; x-jupiter-uuid=16551847165221974; gftoken=OTg3ODY0Mzh8MTY1NTE5NTQ2MDcyfHwwCAgICAgICAg; _tea_utm_cache_4499=undefined; csrftoken=RWhLoedW-onKgNmyJcpdGf4mSolBr3Ereows; acsessionid=6a1711411ee14731b9e7a7677ec689b4; msToken=XRI1OMiuLql25VQXJeDvPfKLjp5w-7_bPGdvXnDzGTIhgiqBmQaME0j2V-9s6TMrt1jaa_QXn6Ph2Gc70FMOrU5HuqOwjfpvdvoRWCB8Z1EwJ5roPmun; tt_scid=GijAyw-DWZbxNBWn-DkJiqkpMDxvcIiT.ypC1no9Pkyj3S57XxXxs0mAS-zu6iRX3aaa'
+},
+{
+        name ="UG-短险千川-博观-3",
+        id = 1729353507265543,
+        carton = "RWhLoedW-onKgNmyJcpdGf4mSolBr3Ereows",
+        cookie = 'ttcid=ffaa5dc442674781b252514bd70de9e723; n_mh=Ka1mng1RyLBrLDMAVs7sxX4t9MnBwmyXhWRl80V0HIo; d_ticket=dab72464628d52367408055a131d467fee674; qc_tt_tag=0; MONITOR_WEB_ID=0469995c-dd91-4c14-8df6-03e54e9cde6a; passport_csrf_token=4f27b0a3ec5bbbf0ae76ac3f2cf80b23; passport_csrf_token_default=4f27b0a3ec5bbbf0ae76ac3f2cf80b23; MONITOR_DEVICE_ID=b62f4545-432d-45f4-b27f-ea4831aad4a4; ttwid=1|W25-igKKSNtfkb4eI35vHlTPYYdyDEl4YcInebHjmHc|1654668653|16942b11d79799af4fabc4245a008b70abcad965a568529a9149f9d7f739225d; msToken=HwX-q2GdkKZt023H40wRL5wU7KiQuWhREQD5QdHMh8n1gqNbKIRrVJDAD8Xf9hlIQFJsZqRucaM0__hhv6tWPCGpL-y30WduUubOpuiagWAMqlbIBKi12A==; x-jupiter-uuid=16551847165221974; gftoken=OTg3ODY0Mzh8MTY1NTE5NTQ2MDcyfHwwCAgICAgICAg; _tea_utm_cache_4499=undefined; csrftoken=RWhLoedW-onKgNmyJcpdGf4mSolBr3Ereows; acsessionid=4021b0d02941435a979aa40f10d801a2; msToken=-EyWHuWEK6B10gizxhy2pyFtOLYF7bKgVtUgFUEHaS65J9v23LS2fmyhG6Vw-ixibiL-d5FZKmSNfNdd93KPjJrXrIBVU3zjCgcb0ZZgLwG4s1SDbBFZ; tt_scid=VhObVE6-QdifCLWPJ0qDcNiBzZ10LB9CBIkDJLwuBJwwHvrozSiwHfM.ivhyzYqS53a0'
+},
+    {
+        name ="UG-短险千川-博观-2",
+        id = 1727260490285135,
+        carton = "RWhLoedW-onKgNmyJcpdGf4mSolBr3Ereows",
+        cookie = 'ttcid=ffaa5dc442674781b252514bd70de9e723; n_mh=Ka1mng1RyLBrLDMAVs7sxX4t9MnBwmyXhWRl80V0HIo; d_ticket=dab72464628d52367408055a131d467fee674; qc_tt_tag=0; MONITOR_WEB_ID=0469995c-dd91-4c14-8df6-03e54e9cde6a; passport_csrf_token=4f27b0a3ec5bbbf0ae76ac3f2cf80b23; passport_csrf_token_default=4f27b0a3ec5bbbf0ae76ac3f2cf80b23; MONITOR_DEVICE_ID=b62f4545-432d-45f4-b27f-ea4831aad4a4; ttwid=1|W25-igKKSNtfkb4eI35vHlTPYYdyDEl4YcInebHjmHc|1654668653|16942b11d79799af4fabc4245a008b70abcad965a568529a9149f9d7f739225d; msToken=HwX-q2GdkKZt023H40wRL5wU7KiQuWhREQD5QdHMh8n1gqNbKIRrVJDAD8Xf9hlIQFJsZqRucaM0__hhv6tWPCGpL-y30WduUubOpuiagWAMqlbIBKi12A==; x-jupiter-uuid=16551847165221974; gftoken=OTg3ODY0Mzh8MTY1NTE5NTQ2MDcyfHwwCAgICAgICAg; _tea_utm_cache_4499=undefined; csrftoken=RWhLoedW-onKgNmyJcpdGf4mSolBr3Ereows; acsessionid=77ce07e460724301ade97cad9c825559; msToken=qiIV8hlpRbCQXkQeQE0KAjLrHu2TZIxYaMNZXzFZOpe5_aiRo_mjLkUy-EmxfxwyePk_1Hk6yQCD65dzY7IZrWNFPhkZgu6TzS6dZBB3Eb00lPdM9XFs; tt_scid=RqlDEWtHClg.tse8oNIzd1T1-4Y51wBbwDLt17dNucw2lmVXpjfZmKAOIaUnddG48627'
+    },
+    {
+        name ="UG-短险千川-博观-1",
+        id = 1727260489617423,
+        carton = "RWhLoedW-onKgNmyJcpdGf4mSolBr3Ereows",
+        cookie = 'ttcid=ffaa5dc442674781b252514bd70de9e723; n_mh=Ka1mng1RyLBrLDMAVs7sxX4t9MnBwmyXhWRl80V0HIo; d_ticket=dab72464628d52367408055a131d467fee674; qc_tt_tag=0; MONITOR_WEB_ID=0469995c-dd91-4c14-8df6-03e54e9cde6a; passport_csrf_token=4f27b0a3ec5bbbf0ae76ac3f2cf80b23; passport_csrf_token_default=4f27b0a3ec5bbbf0ae76ac3f2cf80b23; MONITOR_DEVICE_ID=b62f4545-432d-45f4-b27f-ea4831aad4a4; ttwid=1|W25-igKKSNtfkb4eI35vHlTPYYdyDEl4YcInebHjmHc|1654668653|16942b11d79799af4fabc4245a008b70abcad965a568529a9149f9d7f739225d; msToken=HwX-q2GdkKZt023H40wRL5wU7KiQuWhREQD5QdHMh8n1gqNbKIRrVJDAD8Xf9hlIQFJsZqRucaM0__hhv6tWPCGpL-y30WduUubOpuiagWAMqlbIBKi12A==; x-jupiter-uuid=16551847165221974; gftoken=OTg3ODY0Mzh8MTY1NTE5NTQ2MDcyfHwwCAgICAgICAg; _tea_utm_cache_4499=undefined; csrftoken=RWhLoedW-onKgNmyJcpdGf4mSolBr3Ereows; acsessionid=83c6e937cae44e9d92e253ae72e72f46; msToken=XaiiAvNn_xoRDFyvXDmtrCfFP1WzkCqLp3-LuMzZKtQBkCG8-nMjCg0OVNmJg87eZ2bIN3UbGkJeXUp7w70oabQkBjYYYykufapeymZ0AUwSPsGw9411; tt_scid=pL5pLLHm1J9XdVDhQILi4x2mUoe3h4AfXd3iCiQCJ80F3uzZZeQ8M4bBwznNY9jr9a2c'
+    }
+]

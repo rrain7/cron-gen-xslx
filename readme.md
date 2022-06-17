@@ -1,14 +1,19 @@
 
 在开始之前首先在命令行运行如下脚本
 ---
-
-```python
-python -m venv venv
-.\venv\Scripts\activate.bat
-.\venv\Scripts\python.exe -m pip install -r requirements.txt
+```powershell
+Set-ExecutionPolicy -ExecutionPolicy Bypass -Scope CurrentUser
 ```
 
-修改`get_data.py`文件中的 `id_info`中的字段值
+```python
+python -m pip install virtualenv -i https://pypi.tuna.tsinghua.edu.cn/simple
+virtualenv --version
+virtualenv venv
+.\venv\Scripts\activate.ps1
+.\venv\Scripts\python.exe -m pip install -r requirements.txt -i https://pypi.tuna.tsinghua.edu.cn/simple
+```
+
+修改`config.toml`文件中的字段
 
 ```go
 go mod tidy
